@@ -21,15 +21,15 @@ import {
 const ContactDetails = ({ contact }) => {
   // Sample contact data - replace with actual data
   const selectedContact = contact || {
-    firstName: "Aaron",
-    lastName: "Phillips",
-    company: "Activision Blizzard",
-    jobTitle: "Company Engineer",
-    phone: "+1 415-864-9735",
-    workPhone: "+1 530-957-6934",
-    email: "aaronphillips@gmail.com",
-    workEmail: "aaron@activisionblizzard.com",
-    birthday: "July 20, 1998",
+    firstName: "Neha",
+    lastName: "Prasad",
+    company: "Google",
+    jobTitle: "Software Engineer",
+    phone: "+91 415-864-9735",
+    workPhone: "+91 530-957-6934",
+    email: "neha09@gmail.com",
+    workEmail: "neha@google.com",
+    birthday: "Feb 6, 2003",
   };
 
   return (
