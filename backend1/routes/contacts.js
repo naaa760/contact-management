@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../config/db");
+const Contact = require("../models/Contact");
 
+// Create a new contact
 router.post("/", async (req, res) => {
   const { name, email, phone } = req.body;
 
@@ -10,29 +11,29 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    const [result] = await db.query(
-      "INSERT INTO contacts (name, email, phone) VALUES (?, ?, ?)",
-      [name, email, phone]
-    );
-    res.status(201).json({ id: result.insertId, name, email, phone });
+    const contact = new Contact({ name, email, phone });
+    await contact.save();
+    res.status(201).json(contact);
   } catch (error) {
-    if (error.code === "ER_DUP_ENTRY") {
-      res.status(400).json({ error: "Duplicate entry." });
+    if (error.code === 11000) {
+      res.status(400).json({ error: "Duplicate email entry." });
     } else {
       res.status(500).json({ error: "Database error." });
     }
   }
 });
 
+// Get all contacts
 router.get("/", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM contacts");
-    res.status(200).json(rows);
+    const contacts = await Contact.find();
+    res.status(200).json(contacts);
   } catch (error) {
     res.status(500).json({ error: "Database error." });
   }
 });
 
+// Update a contact
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { name, email, phone } = req.body;
@@ -42,28 +43,30 @@ router.put("/:id", async (req, res) => {
   }
 
   try {
-    const [result] = await db.query(
-      "UPDATE contacts SET name = ?, email = ?, phone = ? WHERE id = ?",
-      [name, email, phone, id]
+    const contact = await Contact.findByIdAndUpdate(
+      id,
+      { name, email, phone },
+      { new: true, runValidators: true }
     );
 
-    if (result.affectedRows === 0) {
+    if (!contact) {
       return res.status(404).json({ error: "Contact not found." });
     }
 
-    res.status(200).json({ id, name, email, phone });
+    res.status(200).json(contact);
   } catch (error) {
     res.status(500).json({ error: "Database error." });
   }
 });
 
+// Delete a contact
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await db.query("DELETE FROM contacts WHERE id = ?", [id]);
+    const contact = await Contact.findByIdAndDelete(id);
 
-    if (result.affectedRows === 0) {
+    if (!contact) {
       return res.status(404).json({ error: "Contact not found." });
     }
 
